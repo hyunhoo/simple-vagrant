@@ -1,0 +1,46 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+system("
+    if [ #{ARGV[0]} = 'up' ]; then
+        ./setdir.sh test
+    fi
+")
+
+NAME = "vagrant1"
+
+IPADDR = "192.168.92.91"
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+    if Vagrant.has_plugin?("vagrant-vbguest")
+        config.vbguest.auto_update = false
+    end
+
+    # Box setting
+    config.vm.box = "ubuntu/xenial64"
+
+    # Private ip setting
+    config.vm.network "private_network", ip: IPADDR
+
+    # Set hostname
+    config.vm.hostname = NAME
+
+    # Sync folders
+    config.vm.synced_folder "./test", "/home/vagrant/test"
+
+    # Machine settings
+    config.vm.provider "virtualbox" do |vb|
+        # virtualbox vm name
+        vb.name = NAME
+        # vm memory
+        vb.memory = "2048"
+        # vm cpu
+        vb.cpus = "2"
+    end
+
+    # Install pre requirement
+    config.vm.provision "shell", path: "./sys-prereqs.sh"
+end
